@@ -36,4 +36,25 @@ export class Product {
             isReviewed:this.isReviewed
         }
     }
+
+    toFireStore() {
+        return {
+            name: this.name,
+            price: this.price,
+            summary: this.summary,
+            imageName: this.imageName,
+            imageURL: this.imageURL,
+            qty: this.qty,
+        }
+    }
+
+    toFirestoreForUpdate() {
+        const p = {};
+        if (this.name) p.name = this.name;
+        if (this.price) p.price = this.price;
+        if (this.summary) p.summary = this.summary;
+        if (this.imageName) p.imageName = this.imageName;
+        if (this.imageURL) p.imageURL = this.imageURL;
+        return p;
+    }
 }

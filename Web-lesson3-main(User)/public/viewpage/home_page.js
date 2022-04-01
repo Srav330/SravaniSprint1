@@ -9,8 +9,14 @@ import { isAdmin } from '../controller/firebase_auth.js';
 import * as Constants from "../model/constants.js";
 import * as CloudFunctions from '../controller/cloud_functions.js'
 import { modalProductDetail } from './elements.js';
+import { Product } from '../model/product.js';
+import * as Elements from './elements.js';
+import * as CloudStorage from '../controller/storage_controller.js';
+import * as EditProduct from "../controller/edit_product.js"
 
 
+let imageFile2Upload;
+let product_id={};
 
 export function addEventListeners(){
     MENU.Home.addEventListener('click',async() => {
@@ -25,11 +31,26 @@ export function addEventListeners(){
         const label = Util.disableButton(MENU.Home);
         await home_page();
         Util.enableButton(MENU.Home,label);
-    })
+    });
+
+
+    Elements.formAddProduct.imageButton.addEventListener('change', e=>{
+        imageFile2Upload = e.target.files[0];
+        if(!imageFile2Upload){
+            Elements.formAddProduct.imageTag.removeAttribute('src');
+            return;
+        }
+        const reader = new FileReader(); // Local File Referenced by this Object.
+        reader.readAsDataURL(imageFile2Upload); // Load
+        reader.onload = () => Elements.formAddProduct.imageTag.src = reader.result; //Render
+    });
+
+    Elements.formAddProduct.form.addEventListener('submit',addNewProduct);
 }
 
 export async function home_page(){
     MENU.AdminNav.style.display="none";
+    // MENU.UserNav.style.display="none";
     root.innerText=`Loading...`;
 
     // ADMIN HOME PAGE
@@ -60,6 +81,38 @@ export async function home_page(){
         });
 
         root.innerHTML = html;
+
+        const forms=document.getElementsByClassName('form-edit-delete-product');
+        console.log(forms)
+        for(let i=0;i< forms.length;i++)
+        {
+            forms[i].addEventListener('submit',async e=> {
+                e.preventDefault();
+                const buttons = e.target.getElementsByTagName('button');
+                const submitter = e.target.submitter;
+                if(submitter=='EDIT'){
+                    const label=Util.disableButton(buttons[0]);
+                    let singleProductId=e.target.docId.value;
+                    console.log(singleProductId);
+                    await EditProduct.edit_product(singleProductId);
+                    //await Util.sleep(1000);
+                    Util.enableButton(buttons[0],label);
+                }else if(submitter=='DELETE'){
+                    const label = Util.disableButton(buttons[1]);
+                    let singleProductId=e.target.docId.value;
+                    console.log(singleProductId);
+                    await EditProduct.delete_product(singleProductId,e.target.imageName.value);
+                    //await Util.sleep(1000);
+                    Util.enableButton(buttons[1],label);
+                }
+                else{
+                    console.log('No suc submitter', submitter);
+                }
+                //const submitter=e.target.submitter;
+                //const docId=e.target.docId.value;
+                //const imageName=e.target.imageName.value;
+            })
+        }
     }
 
 
@@ -215,14 +268,44 @@ function buildAdminProductCard(product){
             <h5 class="card-title">${product.name}</h5>
             <p class="card-text">${product.price.toFixed(2)}<br>${product.summary}</p>
             <form class="form-edit-delete-product" method="post">
-                <input type="hidden" name="docId" value="${product.docId}">
+                <input type="hidden" id="productIdDelete" name="docId" value="${product.docId}">
                 <input type="hidden" name="imageName" value="${product.imageName}">
-                <button type="submit" class="btn btn-outline-primary"
-                    onclick="this.form.submitter='EDIT'">Edit</button>
-                <button type="submit" class="btn btn-outline-danger"
-                    onclick="this.form.submitter='DELETE'">Delete</button>
+                <button  type="submit" class="btn btn-outline-primary"
+                    onclick="this.form.submitter='EDIT'" data-bs-toggle="modal" data-bs-target="#modal-edit-product">Edit</button>
+                <button id="${product.docId}" type="submit" class="btn btn-outline-danger delete-button"
+                    onclick="this.form.submitter='DELETE';">Delete
+                </button>
             </form>
         </div>
     </div>
     `;
+}
+
+async function addNewProduct(e){
+    e.preventDefault();
+    const name = e.target.name.value;
+    const price = e.target.price.value;
+    const summary = e.target.summary.value;
+
+    const product = new Product({name,price,summary});
+
+    const button = e.target.getElementsByTagName('button')[0];
+    const label = Util.disableButton(button);
+
+    try{
+        // upload the product image => imageName, imageURL
+        const {imageName, imageURL} = await CloudStorage.uploadImage(imageFile2Upload);
+        product.imageName = imageName;
+        product.imageURL = imageURL;
+        const docId = await CloudFunctions.addProduct(product.toFireStore());
+        Util.info('Success!',`Added: ${product.name} ,docId=${docId}`, Elements.modalAddProduct);
+        e.target.reset();
+        Elements.formAddProduct.imageTag.removeAttribute('src');
+        await home_page();
+    } catch(e){
+        if(Constants.DEV) console.log(e);
+        Util.info('Add Product Failed',`${e.code}: ${e.name} = ${e.message}`,Elements.modalAddProduct);
+    }
+
+    Util.enableButton(button, label);
 }

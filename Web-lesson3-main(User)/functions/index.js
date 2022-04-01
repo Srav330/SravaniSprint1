@@ -16,13 +16,13 @@ function authorized(email){
 
 exports.cfn_addProduct = functions.https.onCall(addProduct);
 async function addProduct(data, context){
-    if(!authorized(context.auth.token.email)){
+    if(!authorized(data.email)){
         if(Constants.DEV) console.log(e);
-        throw new functions.https.HttpsError('permission-denied','Only admin may invoke addProduct function');
+        throw new functions.https.HttpsError('permission-denied','Only admin may invoke updateProductDoc function');
     }
 
     try {
-        const ref = await admin.firestore().collection(Constants.COLLECTION_NAMES.PRODUCTS).add(data);
+        const ref = await admin.firestore().collection(Constants.COLLECTION_NAMES.PRODUCTS).add(data.product);
         return ref.id; //doc id
     } catch(e) {
         if (Constants.DEV) console.log(e);
@@ -54,28 +54,28 @@ exports.cfn_getProductList = functions.https.onCall(async (data, context) => {
 
 });
 
-exports.cfn_deleteProductDoc = functions.https.onCall(async (docId, context) => {
-    if(!authorized(context.auth.token.email)){
+exports.cfn_deleteProductDoc = functions.https.onCall(async (data, context) => {
+    if(!authorized(data.email)){
         if(Constants.DEV) console.log(e);
-        throw new functions.https.HttpsError('permission-denied','Only admin may invoke getProductList function');
+        throw new functions.https.HttpsError('permission-denied','Only admin may invoke updateProductDoc function');
     }
     try {
         await admin.firestore().collection(Constants.COLLECTION_NAMES.PRODUCTS)
-                    .doc(docId).delete();
+                    .doc(data.docId).delete();
     } catch (e) {
         if (Constants.DEV) console.log(e);
         throw new functions.https.HttpsError('internal',`deleteProductDoc failed: ${JSON.stringify(e)}`);
     }
 })
 
-exports.cfn_getProductById = functions.https.onCall(async (docId, context) => {
-    if(!authorized(context.auth.token.email)){
+exports.cfn_getProductById = functions.https.onCall(async (data, context) => {
+    if(!authorized(data.email)){
         if(Constants.DEV) console.log(e);
-        throw new functions.https.HttpsError('permission-denied','Only admin may invoke getProductList function');
+        throw new functions.https.HttpsError('permission-denied','Only admin may invoke updateProductDoc function');
     }
     try{
         const doc = await admin.firestore().collection(Constants.COLLECTION_NAMES.PRODUCTS)
-                        .doc(docId).get();
+                        .doc(data.docId).get();
         if(doc.exists){
            const {name, summary, price, imageName, imageURL} = doc.data();
            const p = {name, summary, price, imageName, imageURL};
@@ -92,7 +92,7 @@ exports.cfn_getProductById = functions.https.onCall(async (docId, context) => {
 
 exports.cfn_updateProductDoc = functions.https.onCall(async (data,context) => {
     //data ==> {docId, updateObject}, updateObject = {key,value}
-    if(!authorized(context.auth.token.email)){
+    if(!authorized(data.email)){
         if(Constants.DEV) console.log(e);
         throw new functions.https.HttpsError('permission-denied','Only admin may invoke updateProductDoc function');
     }

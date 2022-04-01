@@ -13,6 +13,7 @@ export const adminEmails = [
 
 export const STORAGE_FOLDER_NAMES = {
     PROFILE_PHOTOS: 'profile_photos/',
+    PRODUCT_IMAGES: 'product_images/',
 }
 
 export const STORAGEFOLDERNAMES = {

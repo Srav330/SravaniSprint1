@@ -20,6 +20,7 @@ export function addEventListeners(){
 }
 
 export async function purchases_page(){
+    MENU.AdminNav.style.display="none";
 
     if(!currentUser){
         root.innerHTML = '<h1> Protected Page</h1>';

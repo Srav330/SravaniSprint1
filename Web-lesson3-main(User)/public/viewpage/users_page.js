@@ -4,6 +4,7 @@ import * as Util from './util.js';
 import { currentUser, isAdmin } from '../controller/firebase_auth.js';
 import * as CloudFunctions from '../controller/cloud_functions.js';
 import * as Constants from '../model/constants.js';
+import { MENU } from './elements.js';
 
 export function addEventListeners(){
         Elements.MENU.menuUsers.addEventListener('click',async ()=>{
@@ -15,18 +16,20 @@ export function addEventListeners(){
         });
 }
 export async function users_page(){
-
+    
     if(!currentUser && isAdmin){
         Elements.root.innerHTML = '<h1>Protected Page</h1>';
         return;
     }
+    console.log("hahahahhaha")
+    MENU.UserNav.style.display="none";
     let html = `
         <h1>Welcome to User Management Page</h1>
     `;
 
     let userList;
     try{
-        userList = await CloudFunctions.getUserList();
+        userList = await CloudFunctions.getUserList({email:currentUser.email});
     }catch(e){
         if(Constants.DEV) console.log(e);
         Util.info('Failed to get user list', JSON.stringify(e));

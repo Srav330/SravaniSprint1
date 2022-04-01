@@ -6,6 +6,7 @@ import * as Util from '../viewpage/util.js';
 import { routing, ROUTE_PATHNAMES } from './route.js';
 import { initShoppingCart } from '../viewpage/cart_page.js';
 import { readAccountProfile } from '../viewpage/profile_page.js';
+import { MENU } from '../viewpage/elements.js';
 
 import { adminEmails } from '../model/constants.js';
 import { home_page } from '../viewpage/home_page.js';
@@ -24,11 +25,6 @@ export function addEventListeners() {
         const button = e.target.getElementsByTagName('button')[0];
         const label = Util.disableButton(button);
         
-        /*if(!Constants.adminEmails.includes(email)){
-            Util.info('Error','Only for admins',Elements.modalSignin);
-            return;
-        }*/
-
         try{
             await signInWithEmailAndPassword(auth,email,password);
             Elements.modalSignin.modal.hide();
@@ -98,6 +94,9 @@ export function addEventListeners() {
 
 async function AuthStateChanged(user) {
     currentUser = user;
+
+    // MENU.AdminNav.style.display="none";
+    // MENU.UserNav.style.display="none";
 
     if (user){
         const includesAdmin = adminEmails.find((admin) => user.reloadUserInfo.email === admin);

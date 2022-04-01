@@ -17,6 +17,18 @@ export const MENU = {
     menuUsers:document.getElementById('menu-users')
 }
 
+export const formAddProduct = {
+    form: document.getElementById('form-add-product'),
+    imageTag: document.getElementById('form-add-product-image-tag'),
+    imageButton: document.getElementById('form-add-product-image-button'),
+}
+
+export const formEditProduct = {
+    form: document.getElementById('form-edit-product'),
+    imageTag: document.getElementById('form-edit-product-image-tag'),
+    imageButton: document.getElementById('form-edit-product-image-button'),
+}
+
 //Form
 //export const formSignIn = document.getElementById('form-signin');
 /*export const formAddProduct = {
@@ -24,11 +36,11 @@ export const MENU = {
     imageTag: document.getElementById('form-add-product-image-tag'),
     imageButton: document.getElementById('form-add-product-image-button'),
 }*/
-/*export const formEditProduct = {
-    form: document.getElementById('form-edit-product'),
-    imageTag: document.getElementById('form-edit-product-image-tag'),
-    imageButton: document.getElementById('form-edit-product-image-button'),
-}*/
+// export const formEditProduct = {
+//     form: document.getElementById('form-edit-product'),
+//     imageTag: document.getElementById('form-edit-product-image-tag'),
+//     imageButton: document.getElementById('form-edit-product-image-button'),
+// }
 //Modals
 export const modalInfobox = {
     modal:new bootstrap.Modal(document.getElementById('modal-infobox'), {backdrop: 'static'}),
@@ -64,3 +76,6 @@ export const modalSignup = {
     modal:new bootstrap.Modal(document.getElementById('modal-signup'),{backdrop:'static'}),
     form: document.getElementById('modal-signup-form'),
 }
+
+export const modalEditProduct = new bootstrap.Modal(document.getElementById('modal-edit-product'),{backdrop:'static'});
+export const modalAddProduct = new bootstrap.Modal(document.getElementById('modal-add-product'),{backdrop:'static'});

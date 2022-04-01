@@ -27,7 +27,8 @@ if(hostname=='localhost' || hostname == '127.0.0.1'){
 
 const cfn_addProduct = httpsCallable(functions, 'cfn_addProduct');
 export async function addProduct(product) {
-    const result = await cfn_addProduct(product);
+    console.log("HAHAHHAHAHAHHAHHA");
+    const result = await cfn_addProduct({product,email:currentUser.email});
     return result.data;
 }
 
@@ -45,12 +46,12 @@ export async function getProductList(){
 
 const cfn_deleteProductDoc = httpsCallable(functions, 'cfn_deleteProductDoc');
 export async function deleteProductDoc(docId){
-    await cfn_deleteProductDoc(docId);
+    await cfn_deleteProductDoc({docId,email:currentUser.email});
 }
 
 const cfn_getProductById = httpsCallable(functions, 'cfn_getProductById');
 export async function getProductById(docId){
-    const result = await cfn_getProductById(docId);
+    const result = await cfn_getProductById({docId,email:currentUser.email});
     if(result.data){
         const product = new Product(result.data);
         product.set_docId(result.data.docId);
